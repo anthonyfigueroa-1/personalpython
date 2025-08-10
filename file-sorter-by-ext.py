@@ -2,8 +2,7 @@
 import os
 import shutil
 import argparse
-import json
-import re
+from collections import defaultdict
 
 def parse_args():
     parse = argparse.ArgumentParser(description="Helps sort files by type, to automate cleaning of files. Very useful for downloads")
@@ -15,7 +14,7 @@ def parse_args():
     return parse.parse_args()
 
 def grab_source_files(source):
-    return os.listdir(f"{source}")
+    return os.listdir(source)
 
 def get_files(items, source):
     files = []
@@ -28,32 +27,31 @@ def get_files(items, source):
     return files
 
 def sort_by_ext(files):
-    grab_ext = [] 
+    files_by_ext = defaultdict(list)
+
     for file in files:
-        extension = os.path.splitext(file)[1]
-        temp = re.search(r"\.([^\']+)", extension)
-        grab_ext.append(temp.group(1))
-    if not grab_ext:
-        exit()
-    temp_ext = []
-    for ext in grab_ext:
-        if ext not in temp_ext:
-            temp_ext.append(ext)
-    print(temp_ext)
+        extension = os.path.splitext(file)[1].lstrip('.') or 'noext'
+        files_by_ext[extension].append(file)
 
-    return temp_ext
+    return files_by_ext
 
-def create_dirs_and_sort(files, ext, source):
-    for t in ext:
-        path = f"{source}/{t}_ext"
-        if not os.path.exists(path):
-            os.makedirs(path)
-            print(f"Created folder for {t} files in {path}")
-        for file in files:
-            match = re.search(rf"\.{t}", file)
-            if match:
-                shutil.move(f"{source}/{file}", f"{path}/{file}")
-                print(f"Moved {file} to {source}{t}{file}")
+def create_dirs_and_sort(files, ext_and_files, source, destination, copy):
+    for ext, files_list in ext_and_files.items():
+        if not files_list:
+            print(f"No files_list to sort for {ext}")
+            return
+        source_path = f"{source}/"
+        sorted_path = f"{destination or source}/{ext}_sorted/"
+        os.makedirs(sorted_path, exist_ok=True)
+        
+        if copy == True:
+            for file in files_list:
+                shutil.copy(f"{source_path}{file}", f"{sorted_path}{file}")
+                print(f"Copied {source_path}{file} to {sorted_path}{file}")
+        else:
+            for file in files_list:
+                shutil.move(f"{source_path}{file}", f"{sorted_path}{file}")
+                print(f"Moved {source_path}{file} to {sorted_path}{file}")
 
 def main():
     args = parse_args()
@@ -65,8 +63,7 @@ def main():
     items = grab_source_files(source)
     files = get_files(items, source)
     ext = sort_by_ext(files)
-    create_dirs_and_sort(files, ext, source)
-
+    create_dirs_and_sort(files, ext, source, destination, copy)
 
 if __name__ == "__main__":
     try:
