@@ -30,26 +30,30 @@ def sort_by_ext(files):
     files_by_ext = defaultdict(list)
 
     for file in files:
-        extension = os.path.splitext(file)[1].lstrip('.') or 'noext'
+        extension = os.path.splitext(file)[1].lstrip('.').lower() or 'noext'
         files_by_ext[extension].append(file)
 
     return files_by_ext
 
-def create_dirs_and_sort(files, ext_and_files, source, destination, copy):
+def create_dirs_and_sort(ext_and_files, source, destination, copy):
     for ext, files_list in ext_and_files.items():
         if not files_list:
             print(f"No files_list to sort for {ext}")
-            return
+            continue
         source_path = f"{source}/"
-        sorted_path = f"{destination or source}/{ext}_sorted/"
+        sorted_path = os.path.join(destination or source, f"{ext}_sorted")
         os.makedirs(sorted_path, exist_ok=True)
         
         if copy == True:
             for file in files_list:
-                shutil.copy(f"{source_path}{file}", f"{sorted_path}{file}")
-                print(f"Copied {source_path}{file} to {sorted_path}{file}")
+                source_path_file = os.path.join(source_path, file)
+                sorted_path_file = os.path.join(sorted_path, file)
+                shutil.copy2(source_path_file, sorted_path_file)
+                print(f"Copied {source_path_file} to {sorted_path_file}")
         else:
             for file in files_list:
+                source_path_file = os.path.join(source_path, file)
+                sorted_path_file = os.path.join(sorted_path, file) 
                 shutil.move(f"{source_path}{file}", f"{sorted_path}{file}")
                 print(f"Moved {source_path}{file} to {sorted_path}{file}")
 
@@ -63,7 +67,7 @@ def main():
     items = grab_source_files(source)
     files = get_files(items, source)
     ext = sort_by_ext(files)
-    create_dirs_and_sort(files, ext, source, destination, copy)
+    create_dirs_and_sort(ext, source, destination, copy)
 
 if __name__ == "__main__":
     try:
