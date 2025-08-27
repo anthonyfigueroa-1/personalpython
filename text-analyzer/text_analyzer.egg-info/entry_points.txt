@@ -1,0 +1,2 @@
+[console_scripts]
+text-analyzer = root.main:main

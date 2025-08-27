@@ -1,0 +1,12 @@
+pyproject.toml
+root/__init__.py
+root/main.py
+root/normalize.py
+root/parse_args.py
+root/read_file.py
+root/tokenize.py
+text_analyzer.egg-info/PKG-INFO
+text_analyzer.egg-info/SOURCES.txt
+text_analyzer.egg-info/dependency_links.txt
+text_analyzer.egg-info/entry_points.txt
+text_analyzer.egg-info/top_level.txt

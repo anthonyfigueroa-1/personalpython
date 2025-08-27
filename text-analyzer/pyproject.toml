@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "text-analyzer"
+version = "0.1"
+description = "Analyze text from inputted text file and will find unique words within file"
+requires-python = ">=3.10"
+
+[project.scripts]
+text-analyzer = "root.main:main"
